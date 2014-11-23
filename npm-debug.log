@@ -1,0 +1,44 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'node', '/usr/local/bin/npm', 'install', '-g', 'ember-cli' ]
+2 info using npm@1.2.25
+3 info using node@v0.10.10
+4 verbose read json /usr/local/lib/package.json
+5 verbose read json /usr/local/lib/package.json
+6 verbose cache add [ 'ember-cli', null ]
+7 verbose cache add name=undefined spec="ember-cli" args=["ember-cli",null]
+8 verbose parsed url { protocol: null,
+8 verbose parsed url   slashes: null,
+8 verbose parsed url   auth: null,
+8 verbose parsed url   host: null,
+8 verbose parsed url   port: null,
+8 verbose parsed url   hostname: null,
+8 verbose parsed url   hash: null,
+8 verbose parsed url   search: null,
+8 verbose parsed url   query: null,
+8 verbose parsed url   pathname: 'ember-cli',
+8 verbose parsed url   path: 'ember-cli',
+8 verbose parsed url   href: 'ember-cli' }
+9 silly lockFile 63e15bd3-ember-cli ember-cli
+10 verbose lock ember-cli /Users/brujitos/.npm/63e15bd3-ember-cli.lock
+11 silly lockFile 63e15bd3-ember-cli ember-cli
+12 verbose addNamed [ 'ember-cli', '' ]
+13 verbose addNamed [ null, '' ]
+14 silly lockFile 1645c26a-ember-cli ember-cli@
+15 verbose lock ember-cli@ /Users/brujitos/.npm/1645c26a-ember-cli.lock
+16 silly lockFile 1645c26a-ember-cli ember-cli@
+17 error Error: EACCES, open '/Users/brujitos/.npm/1645c26a-ember-cli.lock'
+17 error  { [Error: EACCES, open '/Users/brujitos/.npm/1645c26a-ember-cli.lock']
+17 error   errno: 3,
+17 error   code: 'EACCES',
+17 error   path: '/Users/brujitos/.npm/1645c26a-ember-cli.lock' }
+18 error Please try running this command again as root/Administrator.
+19 error System Darwin 14.0.0
+20 error command "node" "/usr/local/bin/npm" "install" "-g" "ember-cli"
+21 error cwd /Users/brujitos/Documents/Personal/ticker
+22 error node -v v0.10.10
+23 error npm -v 1.2.25
+24 error path /Users/brujitos/.npm/1645c26a-ember-cli.lock
+25 error code EACCES
+26 error errno 3
+27 error stack Error: EACCES, open '/Users/brujitos/.npm/1645c26a-ember-cli.lock'
+28 verbose exit [ 3, true ]

@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Getting Started Extension's Popup</title>
+
+	<link href='kendo.common.min.css' rel='stylesheet' />
+	<link href='kendo.default.min.css' rel='stylesheet' />
+      
+    <!--
+      - JavaScript and HTML must be in separate files: see our Content Security
+      - Policy documentation[1] for details and explanation.
+      -
+      - [1]: http://developer.chrome.com/extensions/contentSecurityPolicy.html
+     -->
+    <script src="moment.min.js"></script>
+    <script src="jquery.min.js"></script>
+    <script src="kendo.ui.core.min.js"></script>
+    <script src="popup.js"></script>
+      
+    <script id="tasks" type="text/x-kendo-template">
+        <button id="back" data-role='button' type="button">Back</button>
+        <button id='add_task' data-role='button' type="button">Add task</button>
+        
+        <div id='tasks_list'>
+        </div>
+    </script>
+      
+    <script type="text/x-kendo-tmpl" id="task_template">
+        <div class="task k-widget">
+            <input type="text" class="k-textbox" value='#:description#'>
+            
+            <input type="text" class="k-textbox" value="#:time#">      
+            # if (status == 'stop') {#
+                <button data-role="button" data-id="#:uid#" type="button" class="k-button action-button" role="button" aria-disabled="false" tabindex="0">Start</button>
+            # } else {#
+                <button data-role="button" data-id="#:uid#" type="button" class="k-button action-button" role="button" aria-disabled="false" tabindex="0">Stop</button>
+            # } #
+        </div>
+    </script>
+      
+  </head>
+  <body style='width: 500px;'>
+    <div id="calendar_view">
+        <div id="calendar"></div>
+    </div>
+    <div id="task_list_view"></div>
+      
+ 	<div id="app"></div>
+      
+    <style scoped>
+        #tasks_list {
+            border: 0;
+            margin-top: 1em;
+        }
+          
+        .task {
+            border: 0;
+            margin-bottom: 1em;
+        }
+        
+        .action-button {
+            margin-left: 1em;
+        }
+      </style>
+  </body>
+</html>

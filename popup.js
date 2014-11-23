@@ -1,0 +1,180 @@
+var router = new kendo.Router();
+var calendarView;
+var layout;
+
+var dataSource;
+var listView;
+
+var timer;
+
+var router = new kendo.Router();
+
+var runningTask;
+
+var Task = kendo.data.Model.define({
+    id: "id",
+    fields: {
+        description: "description",
+        status: "status",
+        times: "times"
+    },
+    formatDisplayTime: function () {
+        var totalTime = 0;
+        var times = this.get('times');
+
+        for (var i = 0; i < times.length; i++) {
+            totalTime += times[i].end - times[i].start;
+        }
+
+        totalTime = totalTime / 1000;
+
+        var hours = parseInt(totalTime / 3600);
+        var minutes = parseInt((totalTime % 3600) / 60);
+
+        var displayTime = '';
+
+        if (hours > 0) {
+            displayTime = hours + 'h';
+        }
+
+        displayTime += (minutes > 0) ? ' ' + minutes + 'm' : ' 1m';
+
+        return displayTime;
+    },
+    start: function () {
+        var date = new Date();
+        var times = this.get('times');
+
+        times.push({
+            start: date.getTime(),
+            end: date.getTime()
+        });
+
+        var task = this;
+
+        timer = setInterval(function () {
+            var date = new Date();
+
+            var last = times[times.length - 1];
+            last.end = date.getTime();
+
+            task.set('time', task.formatDisplayTime());
+        }, 10 * 1000);
+
+        this.set('status', 'start');
+
+        this.set('time', this.formatDisplayTime());
+    },
+    stop: function () {
+        var date = new Date();
+        var times = this.get('times');
+
+        var last = times[times.length - 1];
+        last.end = date.getTime();
+
+        if (timer != null) {
+            clearInterval(timer);
+            timer = null;
+        }
+
+        this.set('status', 'stop');
+
+        this.set('time', this.formatDisplayTime());
+    },
+    toggleState: function () {
+        var task = this;
+
+        var newStatus = (task.get('status') == 'start') ? 'stop' : 'start';
+
+        switch (newStatus) {
+        case 'start':
+            this.start();
+            break;
+        case 'stop':
+            this.stop();
+            break;
+        }
+    }
+});
+
+
+router.route('/tasks/:when', function (when) {
+    console.log(when);
+    var model = kendo.observable({
+        when: when
+    });
+    var index = new kendo.View('tasks', {
+        model: model
+    });
+
+    layout.showIn("#content", index);
+
+    $("#back").kendoButton({
+        click: function (e) {
+            router.navigate('/');
+        }
+    });
+
+    dataSource = new kendo.data.DataSource({
+        data: [],
+        schema: {
+            model: Task
+        }
+    });
+
+    listView = $("#tasks_list").kendoListView({
+        dataSource: dataSource,
+        template: kendo.template($("#task_template").html()),
+    }).delegate(".k-button", "mousedown", function (e) {
+        e.stopPropagation();
+
+        var id = $(e.target).data('id');
+        var task = dataSource.getByUid(id);
+
+        if (runningTask != null && runningTask != task) {
+            runningTask.stop();
+        }
+
+        task.toggleState();
+
+        runningTask = task;
+    });
+
+    listView = $("#tasks_list").data("kendoListView");
+
+    $("#add_task").kendoButton({
+        click: function (e) {
+            dataSource.add({
+                description: 'task',
+                status: 'stop',
+                time: 0,
+                times: []
+            })
+            e.preventDefault();
+        }
+    });
+});
+
+router.route('/', function () {
+    if (calendarView == null) {
+        calendarView = new kendo.View('calendar_view');
+        $("#calendar").kendoCalendar({
+            change: function () {
+                var year = new String(this.value().getFullYear());
+                var month = new String(this.value().getMonth() + 1);
+                var day = new String(this.value().getDate());
+
+                router.navigate('/tasks/' + year + '-' + month + '-' + day);
+            }
+        });
+    }
+
+    layout.showIn("#content", calendarView);
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    layout = new kendo.Layout("<header>Header</header><section id='content'></section><footer></footer>");
+    layout.render($("#app"));
+
+    router.start();
+});
