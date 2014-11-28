@@ -16,14 +16,14 @@ Storage.prototype.getTasks = function(){
 Storage.prototype.saveTask = function(task){
     var tasks = this.getTasks();
     
-    var dateTasks = tasks[task.get('date')];
+    var dateTasks = tasks[task.date];
     
     if (null == dateTasks){
         dateTasks = {};
     }
     
-    dateTasks[task.get('id')] = task;
-    tasks[task.get('date')] = dateTasks;
+    dateTasks[task.id] = task;
+    tasks[task.date] = dateTasks;
     
     localStorage.setItem('tasks', JSON.stringify(tasks));
 }

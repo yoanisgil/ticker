@@ -1,16 +1,11 @@
 var router = new kendo.Router();
 var calendarView;
 var layout;
-
 var dataSource;
 var listView;
-
 var timer;
-
-var router = new kendo.Router();
-var storage = new Storage();
-
 var runningTask;
+var parentWindow;
 
 var Task = kendo.data.Model.define({
     id: "id",
@@ -19,9 +14,6 @@ var Task = kendo.data.Model.define({
         status: "status",
         times: "times",
         date: "date"
-    },
-    persist: function () {
-        localStorage.getItem(this.get('date'));
     },
     formatDisplayTime: function () {
         var totalTime = 0;
@@ -64,13 +56,13 @@ var Task = kendo.data.Model.define({
             last.end = date.getTime();
 
             task.set('time', task.formatDisplayTime());
-            
-            storage.saveTask(task);
+
+            task.save();
         }, 10 * 1000);
 
         this.set('status', 'start');
 
-        storage.saveTask(task);
+        this.save();
     },
     stop: function () {
         var date = new Date();
@@ -86,7 +78,7 @@ var Task = kendo.data.Model.define({
 
         this.set('status', 'stop');
 
-        storage.saveTask(task);
+        this.save();
     },
     toggleState: function () {
         var task = this;
@@ -101,11 +93,16 @@ var Task = kendo.data.Model.define({
             this.stop();
             break;
         }
+    },
+    save: function(){
+        parentWindow.postMessage({
+            message: 'saveTask',
+            task: JSON.stringify(this)
+        }, '*');
     }
 });
 
-
-router.route('/tasks/:when', function (when) {
+function onLoadTasksInDate(when, data) {
     var model = kendo.observable({
         when: when
     });
@@ -120,12 +117,6 @@ router.route('/tasks/:when', function (when) {
             router.navigate('/');
         }
     });
-
-    //var data = storage.tasksInDate(when);
-    
-    chrome.extension.sendMessage({message: "hello world"}, "*");
-    
-    return;
 
     dataSource = new kendo.data.DataSource({
         data: [],
@@ -162,7 +153,7 @@ router.route('/tasks/:when', function (when) {
 
         task.set('description', $(e.target).val());
 
-        storage.saveTask(task);
+        task.save();
 
         e.stopPropagation();
     });
@@ -182,6 +173,16 @@ router.route('/tasks/:when', function (when) {
             e.preventDefault();
         }
     });
+}
+
+router.route('/tasks/:when', function (when) {
+    parentWindow.postMessage({
+        message: 'tasksInDate',
+        when: when,
+        replyTo: 'onLoadTasksInDate'
+    }, '*');
+
+
 });
 
 router.route('/', function () {
@@ -201,9 +202,23 @@ router.route('/', function () {
     layout.showIn("#content", calendarView);
 });
 
-document.addEventListener('DOMContentLoaded', function () {
-    layout = new kendo.Layout("<header>Header</header><section id='content'></section><footer></footer>");
-    layout.render($("#app"));
+window.addEventListener('message', function (e) {
+    if (parentWindow == null) {
+        parentWindow = e.source;
+    }
 
-    router.start();
+    message = e.data.message;
+
+    switch (message) {
+    case 'start':
+        layout = new kendo.Layout("<header>Header</header><section id='content'></section><footer></footer>");
+        layout.render($("#app"));
+
+        router.start();
+        break;
+    case 'onLoadTasksInDate':
+        onLoadTasksInDate(e.data.when, e.data.tasks);
+        break;
+    }
+    //    e.source.postMessage({}, '*');
 });
