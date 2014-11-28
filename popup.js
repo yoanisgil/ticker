@@ -8,6 +8,7 @@ var listView;
 var timer;
 
 var router = new kendo.Router();
+var storage = new Storage();
 
 var runningTask;
 
@@ -16,7 +17,11 @@ var Task = kendo.data.Model.define({
     fields: {
         description: "description",
         status: "status",
-        times: "times"
+        times: "times",
+        date: "date"
+    },
+    persist: function () {
+        localStorage.getItem(this.get('date'));
     },
     formatDisplayTime: function () {
         var totalTime = 0;
@@ -59,11 +64,13 @@ var Task = kendo.data.Model.define({
             last.end = date.getTime();
 
             task.set('time', task.formatDisplayTime());
+            
+            storage.saveTask(task);
         }, 10 * 1000);
 
         this.set('status', 'start');
 
-        this.set('time', this.formatDisplayTime());
+        storage.saveTask(task);
     },
     stop: function () {
         var date = new Date();
@@ -79,7 +86,7 @@ var Task = kendo.data.Model.define({
 
         this.set('status', 'stop');
 
-        this.set('time', this.formatDisplayTime());
+        storage.saveTask(task);
     },
     toggleState: function () {
         var task = this;
@@ -99,7 +106,6 @@ var Task = kendo.data.Model.define({
 
 
 router.route('/tasks/:when', function (when) {
-    console.log(when);
     var model = kendo.observable({
         when: when
     });
@@ -115,11 +121,21 @@ router.route('/tasks/:when', function (when) {
         }
     });
 
+    //var data = storage.tasksInDate(when);
+    
+    chrome.extension.sendMessage({message: "hello world"}, "*");
+    
+    return;
+
     dataSource = new kendo.data.DataSource({
         data: [],
         schema: {
             model: Task
         }
+    });
+
+    $.each(data, function (index, o) {
+        dataSource.add(o);
     });
 
     listView = $("#tasks_list").kendoListView({
@@ -138,6 +154,17 @@ router.route('/tasks/:when', function (when) {
         task.toggleState();
 
         runningTask = task;
+
+        return false;
+    }).delegate('.task-description', 'change', function (e) {
+        var id = $(e.target).data('id');
+        var task = dataSource.getByUid(id);
+
+        task.set('description', $(e.target).val());
+
+        storage.saveTask(task);
+
+        e.stopPropagation();
     });
 
     listView = $("#tasks_list").data("kendoListView");
@@ -145,10 +172,12 @@ router.route('/tasks/:when', function (when) {
     $("#add_task").kendoButton({
         click: function (e) {
             dataSource.add({
+                id: '_' + Math.random().toString(36).substr(2, 9),
                 description: 'task',
                 status: 'stop',
                 time: 0,
-                times: []
+                times: [],
+                date: when
             })
             e.preventDefault();
         }

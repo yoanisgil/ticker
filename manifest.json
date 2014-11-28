@@ -1,17 +1,21 @@
 {
-  "manifest_version": 2,
+    "manifest_version": 2,
 
-  "name": "One-click Kittens",
-  "description": "This extension demonstrates a 'browser action' with kittens.",
-  "version": "1.0",
+    "name": "One-click Kittens",
+    "description": "This extension demonstrates a 'browser action' with kittens.",
+    "version": "1.0",
 
-  "browser_action": {
-    "default_icon": "icon.png",
-    "default_popup": "popup.html"
-  },
-  "permissions": [
-    "https://secure.flickr.com/"
-  ],
- "sandbox": {
-  "pages": ["popup.html"]}
+    "browser_action": {
+        "default_icon": "icon.png",
+        "default_popup": "popup.html"
+
+    },
+    "permissions": ["https://secure.flickr.com/", "storage", "background"],
+    "sandbox": {
+        "pages": ["popup.html"]
+    },
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": false
+    }
 }

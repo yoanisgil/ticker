@@ -15,6 +15,7 @@
     <script src="moment.min.js"></script>
     <script src="jquery.min.js"></script>
     <script src="kendo.ui.core.min.js"></script>
+    <script src="localstorage.js"></script>
     <script src="popup.js"></script>
       
     <script id="tasks" type="text/x-kendo-template">
@@ -27,9 +28,9 @@
       
     <script type="text/x-kendo-tmpl" id="task_template">
         <div class="task k-widget">
-            <input type="text" class="k-textbox" value='#:description#'>
+            <input type="text" class="k-textbox task-description" data-id="#:uid#"  value='#:description#'>
             
-            <input type="text" class="k-textbox" value="#:time#">      
+            <input type="text" class="k-textbox" value="#:formatDisplayTime()#">      
             # if (status == 'stop') {#
                 <button data-role="button" data-id="#:uid#" type="button" class="k-button action-button" role="button" aria-disabled="false" tabindex="0">Start</button>
             # } else {#
